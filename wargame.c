@@ -541,10 +541,66 @@ Pion* f_raz_plateau()
 }
 
 //Fonction min trouve le minimum des noeuds fils
-??? f_min(???)
-		{
-	/** A remplir **/
-		}
+int f_min(Pion *plateau, int joueur_ia, int profondeur, int alpha, int beta)
+{
+    int i, j, dl, dc;
+    int meilleur = INFINI;
+    int nb_coups = 0;
+    int score;
+    int evaluation = f_eval(plateau, joueur_ia);
+
+    if (profondeur <= 0 || evaluation == INFINI || evaluation == -INFINI)
+        return evaluation;
+
+    for (i = 0; i < NB_LIGNES; i++)
+    {
+        for (j = 0; j < NB_COLONNES; j++)
+        {
+            if (plateau[i * NB_COLONNES + j].couleur != -joueur_ia)
+                continue;
+
+            for (dl = -1; dl <= 1; dl++)
+            {
+                for (dc = -1; dc <= 1; dc++)
+                {
+                    int l2 = i + dl;
+                    int c2 = j + dc;
+                    Pion copie[NB_LIGNES * NB_COLONNES];
+
+                    if (dl == 0 && dc == 0)
+                        continue;
+
+                    if (l2 < 0 || l2 >= NB_LIGNES ||
+                        c2 < 0 || c2 >= NB_COLONNES)
+                        continue;
+
+                    f_copie_plateau(plateau, copie);
+
+                    if (f_bouge_piece(copie, i, j, l2, c2, -joueur_ia) != 0)
+                        continue;
+
+                    nb_coups++;
+                    score = f_max(copie, joueur_ia, profondeur - 1, alpha, beta);
+
+                    if (score < meilleur)
+                        meilleur = score;
+
+                    if (meilleur < beta)
+                        beta = meilleur;
+
+                    if (alpha >= beta)
+                        return meilleur;
+                }
+            }
+        }
+    }
+
+    if (nb_coups == 0)
+        return evaluation;
+
+    return meilleur;
+}
+
 
 //Fonction max trouve le maximum des noeuds fils
 ??? f_max(???)
