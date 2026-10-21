@@ -314,7 +314,7 @@ int f_test_mouvement(Pion *plateau, int l1, int c1, int l2, int c2, int couleur)
 		return 1;
 
 	if(l1-l2 >1 || l2-l1 >1 || c1-c2 >1 || c2-c1 >1 || (l1==l2 && c1==c2))
-		retour = 1;
+		return 1;
 #ifdef DEBUG
 	printf("dbg: exiting %s %d\n", __FUNCTION__, __LINE__);
 #endif
@@ -412,9 +412,69 @@ int f_valeur(Pion* jeu, int joueur)
 }
 
 //fonction d'évaluation
-int f_eval(Pion* jeu,int joueur)
+// Evaluate a game board
+int f_eval(Pion* jeu, int joueur)
 {
-	/** A vous de trouver une fonction efficace **/
+    int i, j;
+    int ligne_joueur;
+    int ligne_adverse;
+    int force, nombre, avancee = 0;
+
+    // Determine the player's target row
+    ligne_joueur = (joueur == 1) ? 0 : NB_LIGNES - 1;
+
+    // Determine the opponent's target row
+    ligne_adverse = (joueur == 1) ? NB_LIGNES - 1 : 0;
+
+    // Check winning conditions
+    for (j = 0; j < NB_COLONNES; j++)
+    {
+        if (jeu[ligne_joueur * NB_COLONNES + j].couleur == joueur)
+            return INFINI;
+
+        if (jeu[ligne_adverse * NB_COLONNES + j].couleur == -joueur)
+            return -INFINI;
+    }
+
+    // Check whether either player has lost all their pieces
+    if (f_nbPions(jeu, joueur) == 0)
+        return -INFINI;
+
+    if (f_nbPions(jeu, -joueur) == 0)
+        return INFINI;
+
+    // Compare the total value of both armies
+    force = f_valeur(jeu, joueur) - f_valeur(jeu, -joueur);
+
+    // Compare the number of pieces
+    nombre = f_nbPions(jeu, joueur) - f_nbPions(jeu, -joueur);
+
+    // Evaluate progress towards the opponent's target row
+    for (i = 0; i < NB_LIGNES; i++)
+    {
+        for (j = 0; j < NB_COLONNES; j++)
+        {
+            int couleur = jeu[i * NB_COLONNES + j].couleur;
+            int progres;
+
+            if (couleur == 0)
+                continue;
+
+            // Player 1 moves towards row 0.
+            // Player -1 moves towards the last row.
+            progres = (couleur == 1)
+                ? NB_LIGNES - 1 - i
+                : i;
+
+            if (couleur == joueur)
+                avancee += progres;
+            else
+                avancee -= progres;
+        }
+    }
+
+    //Compute the final evaluation score
+    return 10 * force + 3 * nombre + avancee;
 }
 
 //copie du plateau
