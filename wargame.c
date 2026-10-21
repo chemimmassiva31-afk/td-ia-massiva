@@ -289,6 +289,38 @@ int f_bataille(int l, int c)
 	return plateauDeJeu[l*NB_COLONNES+c].couleur;
 }
 
+/* Determine the winner of a battle on a given board */
+int f_bataille_plateau(Pion *plateau, int l, int c)
+{
+        int i, j, mini, maxi, minj, maxj;
+        int somme = 0;
+
+        mini = l - 1 < 0 ? 0 : l - 1;
+        maxi = l + 1 > NB_LIGNES - 1 ? NB_LIGNES - 1 : l + 1;
+        minj = c - 1 < 0 ? 0 : c - 1;
+        maxj = c + 1 > NB_COLONNES - 1 ? NB_COLONNES - 1 : c + 1;
+
+        for (i = mini; i <= maxi; i++)
+        {
+                for (j = minj; j <= maxj; j++)
+                {
+                        somme += plateau[i * NB_COLONNES + j].couleur
+                               * plateau[i * NB_COLONNES + j].valeur;
+                }
+        }
+
+        somme -= plateau[l * NB_COLONNES + c].couleur
+               * plateau[l * NB_COLONNES + c].valeur;
+
+        if (somme < 0)
+                return -1;
+        if (somme > 0)
+                return 1;
+
+        return plateau[l * NB_COLONNES + c].couleur;
+}
+
+
 
 /**
  * Prend la ligne et colonne de la case d'origine
@@ -352,7 +384,7 @@ int f_bouge_piece(Pion *plateau, int l1, int c1, int l2, int c2, int couleur)
 	}
 	else
 	{
-		gagnant=f_bataille(l2, c2);
+		gagnant = f_bataille_plateau(plateau, l2, c2);
 		/* victoire */
 		if(gagnant == couleur)
 		{
