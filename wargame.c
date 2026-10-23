@@ -678,6 +678,7 @@ void f_IA(int joueur)
 	    int i, j, dl, dc;
         int l1, c1, l2, c2;
         int meilleur_score = -INFINI;
+		int coup_trouve = 0;
         int score;
         int meilleur_l1 = -1, meilleur_c1 = -1;
         int meilleur_l2 = -1, meilleur_c2 = -1;
@@ -722,13 +723,13 @@ void f_IA(int joueur)
                                                     -INFINI,
                                                     INFINI);
 
-                                        if (score > meilleur_score)
-                                        {
-                                                meilleur_score = score;
-                                                meilleur_l1 = l1;
-                                                meilleur_c1 = c1;
-                                                meilleur_l2 = l2;
-                                                meilleur_c2 = c2;
+                                        if (score > meilleur_score || !coup_trouve){
+                                            meilleur_score = score;
+                                            meilleur_l1 = l1;
+                                            meilleur_c1 = c1;
+                                            meilleur_l2 = l2;
+                                            meilleur_c2 = c2;
+                                            coup_trouve = 1;
                                         }
                                 }
                         }
