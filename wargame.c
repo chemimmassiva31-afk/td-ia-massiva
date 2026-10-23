@@ -541,6 +541,7 @@ Pion* f_raz_plateau()
 }
 
 //Fonction min trouve le minimum des noeuds fils
+int f_max(Pion *plateau, int joueur_ia, int profondeur, int alpha, int beta);
 int f_min(Pion *plateau, int joueur_ia, int profondeur, int alpha, int beta)
 {
     int i, j, dl, dc;
@@ -674,7 +675,76 @@ void f_IA(int joueur)
 	printf("dbg: entering %s %d\n", __FUNCTION__, __LINE__);
 #endif
 
-	/** A remplir **/
+	    int i, j, dl, dc;
+        int l1, c1, l2, c2;
+        int meilleur_score = -INFINI;
+        int score;
+        int meilleur_l1 = -1, meilleur_c1 = -1;
+        int meilleur_l2 = -1, meilleur_c2 = -1;
+
+        for (i = 0; i < NB_LIGNES; i++)
+        {
+                for (j = 0; j < NB_COLONNES; j++)
+                {
+                        if (plateauDeJeu[i * NB_COLONNES + j].couleur != joueur)
+                                continue;
+
+                        for (dl = -1; dl <= 1; dl++)
+                        {
+                                for (dc = -1; dc <= 1; dc++)
+                                {
+                                        Pion copie[NB_LIGNES * NB_COLONNES];
+
+                                        if (dl == 0 && dc == 0)
+                                                continue;
+
+                                        l1 = i;
+                                        c1 = j;
+                                        l2 = i + dl;
+                                        c2 = j + dc;
+
+                                        if (f_test_mouvement(
+                                                    plateauDeJeu,
+                                                    l1, c1, l2, c2, joueur) != 0)
+                                                continue;
+
+                                        f_copie_plateau(plateauDeJeu, copie);
+
+                                        if (f_bouge_piece(
+                                                    copie,
+                                                    l1, c1, l2, c2, joueur) != 0)
+                                                continue;
+
+                                        score = f_min(
+                                                    copie,
+                                                    joueur,
+                                                    2,
+                                                    -INFINI,
+                                                    INFINI);
+
+                                        if (score > meilleur_score)
+                                        {
+                                                meilleur_score = score;
+                                                meilleur_l1 = l1;
+                                                meilleur_c1 = c1;
+                                                meilleur_l2 = l2;
+                                                meilleur_c2 = c2;
+                                        }
+                                }
+                        }
+                }
+        }
+
+        if (meilleur_l1 != -1)
+        {
+                f_bouge_piece(
+                        plateauDeJeu,
+                        meilleur_l1,
+                        meilleur_c1,
+                        meilleur_l2,
+                        meilleur_c2,
+                        joueur);
+        }
 
 #ifdef DEBUG
 	printf("dbg: exiting %s %d\n", __FUNCTION__, __LINE__);
