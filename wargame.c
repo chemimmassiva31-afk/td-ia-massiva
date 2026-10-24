@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 
 #define NB_LIGNES 10
@@ -18,6 +19,8 @@ typedef struct pion_s
 }Pion;
 
 Pion *plateauDeJeu;
+/* Nombre de noeuds visites (appels de f_min et f_max) pour l'analyse des coupures */
+long nb_noeuds = 0;
 
 void f_affiche_plateau(Pion *plateau);
 int f_convert_char2int(char c);
@@ -506,7 +509,7 @@ int f_eval(Pion* jeu, int joueur)
     }
 
     //Compute the final evaluation score
-    return 10 * force + 3 * nombre + avancee;
+    return 10 * force + 3 * nombre + 5 * avancee;
 }
 
 //copie du plateau
@@ -549,6 +552,7 @@ int f_min(Pion *plateau, int joueur_ia, int profondeur, int alpha, int beta)
     int nb_coups = 0;
     int score;
     int evaluation = f_eval(plateau, joueur_ia);
+	nb_noeuds++;
 
     if (profondeur <= 0 || evaluation == INFINI || evaluation == -INFINI)
         return evaluation;
@@ -611,6 +615,7 @@ int f_max(Pion *plateau, int joueur_ia, int profondeur, int alpha, int beta)
     int nb_coups = 0;
     int score;
     int evaluation = f_eval(plateau, joueur_ia);
+	nb_noeuds++;
 
     if (profondeur <= 0 || evaluation == INFINI || evaluation == -INFINI)
         return evaluation;
@@ -682,6 +687,9 @@ void f_IA(int joueur)
         int score;
         int meilleur_l1 = -1, meilleur_c1 = -1;
         int meilleur_l2 = -1, meilleur_c2 = -1;
+		clock_t debut, fin;
+        nb_noeuds = 0;
+        debut = clock();
 
         for (i = 0; i < NB_LIGNES; i++)
         {
@@ -746,6 +754,9 @@ void f_IA(int joueur)
                         meilleur_c2,
                         joueur);
         }
+		
+        fin = clock();
+        printf("IA : %ld noeuds visites, %.4f s\n", nb_noeuds, (double)(fin - debut) / CLOCKS_PER_SEC);
 
 #ifdef DEBUG
 	printf("dbg: exiting %s %d\n", __FUNCTION__, __LINE__);
